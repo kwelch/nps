@@ -8,6 +8,7 @@ import arrify from 'arrify'
 import getScriptToRun from './get-script-to-run'
 import getScriptsFromConfig from './get-scripts-from-config'
 import getLogger, {getLogLevel} from './get-logger'
+import resolveScriptName from './resolve-script-name'
 
 const NON_ERROR = 0
 
@@ -31,6 +32,7 @@ function runPackageScript({scriptConfig, options, input}) {
   const [scriptPrefix, ...args] = input.split(' ')
   const scripts = getScriptsFromConfig(scriptConfig, scriptPrefix)
   const script = getScriptToRun(scripts, scriptPrefix)
+  const resolvedScriptName = resolveScriptName(script, scriptConfig)
   if (!isString(script)) {
     return Promise.reject({
       message: chalk.red(
@@ -45,7 +47,7 @@ function runPackageScript({scriptConfig, options, input}) {
   const command = [script, ...args].join(' ').trim()
   const log = getLogger(getLogLevel(options))
   log.info(
-    `${chalk.gray('nps is executing')} ${chalk.bold(scriptPrefix)}: ${chalk.green(command)}`,
+    `${chalk.gray('nps is executing')} ${chalk.bold(resolvedScriptName)}: ${chalk.green(command)}`,
   )
   let child
   return new Promise((resolve, reject) => {
